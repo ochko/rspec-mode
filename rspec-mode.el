@@ -108,7 +108,7 @@
   :type 'string
   :group 'rspec-mode)
 
-(defcustom rspec-spec-command "spec"
+(defcustom rspec-spec-command (if (executable-find "rspec") "rspec" "spec")
   "The command for spec"
   :type 'string
   :group 'rspec-mode)
@@ -300,7 +300,7 @@
       (concat "--options " (rspec-spec-opts-file))
     (if default-options
         default-options
-        (concat "--format specdoc " "--reverse"))))
+        (concat "--format " (if (executable-find "rspec") "progress" "specdoc --reverse") ))))
 
 (defun rspec-spec-opts-file ()
   "Returns filename of spec opts file (usually spec/spec.opts)"
@@ -377,6 +377,7 @@
              (lambda ()
                (local-set-key (kbd "C-c ,v") 'rspec-verify)
                (local-set-key (kbd "C-c ,a") 'rspec-verify-all)
+               (local-set-key (kbd "C-c ,s") 'rspec-verify-single)
                (local-set-key (kbd "C-c ,t") 'rspec-toggle-spec-and-target))))
 
 ;; Add verify related spec keybinding to ruby ruby modes
@@ -386,6 +387,7 @@
              (lambda ()
                (local-set-key (kbd "C-c ,v") 'rspec-verify)
                (local-set-key (kbd "C-c ,a") 'rspec-verify-all)
+               (local-set-key (kbd "C-c ,s") 'rspec-verify-single)
                (local-set-key (kbd "C-c ,t") 'rspec-toggle-spec-and-target))))
 
 ;; This hook makes any abbreviation that are defined in
