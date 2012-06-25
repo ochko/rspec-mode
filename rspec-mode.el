@@ -57,7 +57,7 @@
 ;; command. Use the customization interface (customize-group
 ;; rspec-mode) or override using (setq rspec-use-rake-flag TVAL).
 ;;
-;; Options will be loaded from spec.opts if it exists, otherwise it
+;; Options will be loaded from .spec.opts if it exists, otherwise it
 ;; will fallback to defaults.
 ;;
 ;; Dependencies
@@ -76,7 +76,7 @@
 ;; 0.6 - support for arbitrary spec and rake commands (David Yeu)
 ;; 0.5 - minor changes from Tim Harper
 ;; 0.4 - ansi colorization of compliation buffers (teaforthecat)
-;; 0.3 - Dave Nolan implements respect for spec.opts config and
+;; 0.3 - Dave Nolan implements respect for .spec.opts config and
 ;;       custom option to use 'rake spec' task or 'spec' command
 ;; 0.2 - Tim Harper implemented support for imenu to generate a basic
 ;;       tag outline
@@ -109,8 +109,8 @@
   "The command for rake"
   :type 'string
   :group 'rspec-mode)
-
-(defcustom rspec-spec-command (if (executable-find "rspec") "rspec" "spec")
+(compile (mapconcat 'identity (list (rspec-runner) (rspec-runner-target spec-file) (rspec-runner-options opts)) " "))
+(defcustom rspec-spec-command (if (executable-find "spec") "spec" "rspec")
   "The command for spec"
   :type 'string
   :group 'rspec-mode)
@@ -120,6 +120,20 @@
   :type 'boolean
   :group 'rspec-mode)
 
+(defcustom rspec-use-rbenv nil
+  "t when Rbenv is in use"
+  :type 'boolean
+  :group 'rspec-mode)
+
+(defcustom rspec-bundle-command "bundle exec "
+  "The command for rake"
+  :type 'string
+  :group 'rspec-mode)
+
+(defcustom rspec-use-bundle nil
+  "t when Bundler in is in use."
+  :type 'boolean
+  :group 'rspec-mode)
 
 ;;;###autoload
 (define-minor-mode rspec-mode
@@ -228,7 +242,6 @@
 (defun rspec-spec-directory-has-lib? (a-file-name)
   (file-directory-p (concat (rspec-spec-directory a-file-name) "/lib")))
 
-
 (defun rspec-spec-file-for (a-file-name)
   "Find spec for the specified file"
   (if (rspec-spec-file-p a-file-name)
@@ -303,7 +316,7 @@
   (string-match "\\(_\\|-\\)spec\\.rb$" a-file-name))
 
 (defun rspec-core-options (&optional default-options)
-  "Returns string of options that instructs spec to use spec.opts file if it exists, or sensible defaults otherwise"
+  "Returns string of options that instructs spec to use .spec.opts file if it exists, or sensible defaults otherwise"
   (if (file-readable-p (rspec-spec-opts-file))
       (concat "--options " (rspec-spec-opts-file))
     (if default-options
@@ -311,14 +324,16 @@
         (concat "--format " (if (executable-find "rspec") "progress" "specdoc --reverse") ))))
 
 (defun rspec-spec-opts-file ()
-  "Returns filename of spec opts file (usually spec/spec.opts)"
-  (concat (rspec-spec-directory (rspec-project-root)) "/spec.opts"))
+  "Returns filename of spec opts file (usually spec/.spec.opts)"
+  (concat (rspec-spec-directory (rspec-project-root)) "/.spec.opts"))
 
 (defun rspec-runner ()
   "Returns command line to run rspec"
-  (if rspec-use-rake-flag
-      (concat rspec-rake-command " spec")
-    rspec-spec-command))
+  (if rspec-use-bundle
+      (concat rspec-bundle-command rspec-spec-command)
+    (if rspec-use-rake-flag
+        (concat rspec-rake-command " spec")
+      rspec-spec-command)))
 
 (defun rspec-runner-options (&optional opts)
   "Returns string of options for command line"
