@@ -109,7 +109,7 @@
   "The command for rake"
   :type 'string
   :group 'rspec-mode)
-(compile (mapconcat 'identity (list (rspec-runner) (rspec-runner-target spec-file) (rspec-runner-options opts)) " "))
+
 (defcustom rspec-spec-command (if (executable-find "spec") "spec" "rspec")
   "The command for spec"
   :type 'string
