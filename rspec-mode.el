@@ -110,7 +110,7 @@
   :type 'string
   :group 'rspec-mode)
 
-(defcustom rspec-spec-command (if (executable-find "spec") "spec" "rspec")
+(defcustom rspec-spec-command (if (file-exists-p ".rspec") "rspec" (if (executable-find "spec") "spec" "rspec"))
   "The command for spec"
   :type 'string
   :group 'rspec-mode)
