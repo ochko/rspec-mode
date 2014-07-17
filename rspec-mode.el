@@ -188,6 +188,7 @@ Not used when running specs using Zeus or Spring."
 (defcustom rspec-use-bundle nil
   "t when Bundler in is in use."
   :type 'boolean
+  :group 'rspec-mode)
 
 (defcustom rspec-use-opts-file-when-available t
   "When t, RSpec should use .rspec/spec.opts."
